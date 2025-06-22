@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Closest Parkings</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <style>
+        #map { height: 400px; width: 100%; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Find Closest bicycle shed in Ghent</h1>
+
+    <form method="post">
+        <input type="text" name="address" placeholder="Enter address or place" size="50" required>
+        <button type="submit">Find</button>
+    </form>
+
+    {% if parkings %}
+    <h2>Closest parkings:</h2>
+    <ul>
+        {% for p in parkings %}
+            <li>{{ p.name }} — {{ p.distance_km | round(2) }} km ({{ p.lat }}, {{ p.lon }})</li>
+        {% endfor %}
+    </ul>
+    {% if input_coords %}
+    <div id="map"></div> {# This was missing! #}
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+    const map = L.map('map').setView([{{ input_coords[0] }}, {{ input_coords[1] }}], 14);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+    }).addTo(map);
+
+    L.marker([{{ input_coords[0] }}, {{ input_coords[1] }}]).addTo(map)
+        .bindPopup("Your location")
+        .openPopup();
+
+    {% for p in parkings %}
+        L.marker([{{ p.lat }}, {{ p.lon }}]).addTo(map)
+        .bindPopup("{{ p.name }}<br>Distance: {{ p.distance_km | round(2) }} km");
+    {% endfor %}
+    </script>
+    {% endif %}
+    {% endif %} {# This was missing! #}
+
+</body>
+</html>
